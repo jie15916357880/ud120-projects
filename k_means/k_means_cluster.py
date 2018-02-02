@@ -76,11 +76,19 @@ for f1, f2 in finance_features:
     plt.scatter( f1, f2 )
 plt.show()
 
+###features rescaling
+from sklearn.preprocessing import MinMaxScaler
+def scaler(feature_train):
+    MMS = MinMaxScaler()
+    a = MMS.fit_transform(feature_train)
+    #print "MMS:",MMS.transform([[200000.,1000000.]])
+    return a
+
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
 from sklearn.cluster import KMeans
 clf = KMeans(n_clusters=2)
-pred = clf.fit_predict( finance_features )
+pred = clf.fit_predict( scaler(finance_features) )
 
 
 
