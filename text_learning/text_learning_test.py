@@ -1,4 +1,6 @@
 from nltk.corpus import stopwords
+import nltk
+nltk.download('stopwords')
 sw = stopwords.words("english")
 print len(sw)
 from nltk.stem.snowball import SnowballStemmer

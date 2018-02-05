@@ -35,7 +35,7 @@ word_data = []
 ### temp_counter helps you only look at the first 200 emails in the list so you
 ### can iterate your modifications quicker
 temp_counter = 0
-rm_str = ["sara", "shackleton", "chris", "germani"]
+rm_str = ["sara", "shackleton", "chris", "germani","sshacklensf","cgermannsf"]
 
 for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
     for path in from_person:
