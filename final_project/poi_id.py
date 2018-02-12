@@ -2,15 +2,25 @@
 
 import sys
 import pickle
+import numpy as np
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 
+def outlier_cleaner(dataset):
+    temp_list =[]
+    for _,features in dataset.items():
+        if features["salary"] != "NaN":
+            temp_list.append(float(features["salary"]))
+    temp_list = sorted(temp_list,reverse = True)
+    for name,features in dataset.items():
+        if features["salary"]==temp_list[0]:
+            dataset.pop(name,0)
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-features_list = ['poi','salary'] # You will need to use more features
+features_list = ['poi','salary','bonus'] # You will need to use more features
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -20,6 +30,7 @@ with open("final_project_dataset.pkl", "r") as data_file:
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
+outlier_cleaner(my_dataset)
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
@@ -43,7 +54,7 @@ clf = GaussianNB()
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
 # Example starting point. Try investigating other evaluation techniques!
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
