@@ -1,7 +1,8 @@
 #!/usr/bin/python
-
+# coding=utf-8
 import sys
 import pickle
+from collections import defaultdict
 import numpy as np
 sys.path.append("../tools/")
 
@@ -17,6 +18,57 @@ def outlier_cleaner(dataset):
     for name,features in dataset.items():
         if features["salary"]==temp_list[0]:
             dataset.pop(name,0)
+
+def gen_features(dataset):
+    """
+    生成特征
+    :param dataset: 数据集
+    :return : 特征列表
+    """
+    set_features = set()
+    list_filter = []
+    count = 0
+    for _, features in dataset.items():
+        if count:
+            set_features = set_features.intersection(set(features.keys()))
+        else:
+            set_features = set(features.keys())
+        count += 1
+    set_features = list(set_features)
+    for i in list_filter:
+        if i in set_features:
+            set_features.pop(set_features.index(i))
+    poi = set_features.pop(set_features.index('poi'))
+    salary = set_features.pop(set_features.index('salary'))
+    bonus = set_features.pop(set_features.index('bonus'))
+    set_features.insert(0, poi)
+    set_features.insert(1, salary)
+    set_features.insert(2, bonus)
+    return set_features
+
+def check_nan(my_dataset, n=0.5):
+    """
+    根据feature为NaN的含量，
+    移除数据中前NaN大于n的feature
+    :param my_dataset: 数据集
+    :param n: NaN的比率
+    :return : 移除的特征列表
+    """
+    dict_nan = defaultdict(int)
+    total = len(my_dataset)
+    list_result = []
+    for _, features in my_dataset.items():
+        for feature, value in features.items():
+            if not isinstance(value, int) and not isinstance(value, bool):
+                dict_nan[feature] += 1
+    # list_sorted = sorted(dict_nan.items(), key=lambda item: item[1], reverse=True)
+    for key,num in dict_nan.items():
+        if float(num)/float(total) > n:
+            list_result.append(key)
+    for name, _ in my_dataset.items():
+        for feature in list_result:
+            my_dataset[name].pop(feature)
+    return list_result
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
@@ -31,7 +83,8 @@ with open("final_project_dataset.pkl", "r") as data_file:
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
 outlier_cleaner(my_dataset)
-
+set_features = gen_features(my_dataset)
+nan_list = check_nan(my_dataset)
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
